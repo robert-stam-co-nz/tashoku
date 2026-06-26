@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="100%" height="100%" fill="#4F46E5" />
+  <!-- central rounded square with white inset to serve as maskable safe area -->
+  <rect x="56" y="56" width="400" height="400" rx="40" ry="40" fill="#FFFFFF" />
+  <g transform="translate(56,56)">
+	<!-- reuse same dots layout but smaller to fit mask area -->
+	<circle cx="74" cy="74" r="28" fill="#E53E3E" />
+	<circle cx="224" cy="74" r="28" fill="#38A169" />
+	<circle cx="374" cy="74" r="28" fill="#3182CE" />
+	<circle cx="74" cy="224" r="28" fill="#D69E2E" />
+	<circle cx="224" cy="224" r="28" fill="#805AD5" />
+	<circle cx="374" cy="224" r="28" fill="#0BC5EA" />
+	<circle cx="74" cy="374" r="28" fill="#F97316" />
+	<circle cx="224" cy="374" r="28" fill="#EC4899" />
+	<circle cx="374" cy="374" r="28" fill="#84CC16" />
+  </g>
+</svg>
