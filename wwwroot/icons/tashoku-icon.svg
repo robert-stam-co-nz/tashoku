@@ -19,4 +19,21 @@
 	<line x1="48" y1="48" x2="464" y2="48" />
 	<line x1="48" y1="464" x2="464" y2="464" />
   </g>
+
+  <!-- Colored dots centered in each 3x3 cell -->
+  <!-- Cell centers computed within inset 48..464 -->
+  <g id="dots" fill="none">
+	<!-- Row 1 -->
+	<circle cx="117.3333" cy="117.3333" r="28" fill="#E53E3E" stroke="#FFFFFF" stroke-width="5" />
+	<circle cx="256"      cy="117.3333" r="28" fill="#38A169" stroke="#FFFFFF" stroke-width="5" />
+	<circle cx="394.6667" cy="117.3333" r="28" fill="#3182CE" stroke="#FFFFFF" stroke-width="5" />
+	<!-- Row 2 -->
+	<circle cx="117.3333" cy="256"      r="28" fill="#D69E2E" stroke="#FFFFFF" stroke-width="5" />
+	<circle cx="256"      cy="256"      r="28" fill="#805AD5" stroke="#FFFFFF" stroke-width="5" />
+	<circle cx="394.6667" cy="256"      r="28" fill="#0BC5EA" stroke="#FFFFFF" stroke-width="5" />
+	<!-- Row 3 -->
+	<circle cx="117.3333" cy="394.6667" r="28" fill="#F97316" stroke="#FFFFFF" stroke-width="5" />
+	<circle cx="256"      cy="394.6667" r="28" fill="#EC4899" stroke="#FFFFFF" stroke-width="5" />
+	<circle cx="394.6667" cy="394.6667" r="28" fill="#84CC16" stroke="#FFFFFF" stroke-width="5" />
+  </g>
 </svg>
