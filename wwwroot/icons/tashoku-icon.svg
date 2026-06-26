@@ -22,25 +22,22 @@
 
   <!-- Colored dots centered in each 3x3 cell -->
   <g id="dots" fill="none">
-	<!-- Cell centers accounting for grid line thickness (stroke-width 22 = ±11px) -->
-	<!-- Col 1 center: (48 + 170.6667) / 2 ≈ 109.33 -->
-	<!-- Col 2 center: (170.6667 + 341.3333) / 2 = 256 -->
-	<!-- Col 3 center: (341.3333 + 464) / 2 ≈ 402.67 -->
-	<!-- Row 1 center: (48 + 170.6667) / 2 ≈ 109.33 -->
-	<!-- Row 2 center: (170.6667 + 341.3333) / 2 = 256 -->
-	<!-- Row 3 center: (341.3333 + 464) / 2 ≈ 402.67 -->
+	<!-- Center at 256 is correct -->
+	<!-- Outer dots moved further outward -->
+	<!-- Col 1: moved to 80, Col 3: moved to 432 -->
+	<!-- Row 1: moved to 80, Row 3: moved to 432 -->
 
 	<!-- Row 1 -->
-	<circle cx="109.3333" cy="109.3333" r="50" fill="#E53E3E" stroke="#FFFFFF" stroke-width="4" />
-	<circle cx="256"      cy="109.3333" r="50" fill="#38A169" stroke="#FFFFFF" stroke-width="4" />
-	<circle cx="402.6667" cy="109.3333" r="50" fill="#3182CE" stroke="#FFFFFF" stroke-width="4" />
+	<circle cx="80"  cy="80"  r="50" fill="#E53E3E" stroke="#FFFFFF" stroke-width="4" />
+	<circle cx="256" cy="80"  r="50" fill="#38A169" stroke="#FFFFFF" stroke-width="4" />
+	<circle cx="432" cy="80"  r="50" fill="#3182CE" stroke="#FFFFFF" stroke-width="4" />
 	<!-- Row 2 -->
-	<circle cx="109.3333" cy="256"      r="50" fill="#D69E2E" stroke="#FFFFFF" stroke-width="4" />
-	<circle cx="256"      cy="256"      r="50" fill="#805AD5" stroke="#FFFFFF" stroke-width="4" />
-	<circle cx="402.6667" cy="256"      r="50" fill="#0BC5EA" stroke="#FFFFFF" stroke-width="4" />
+	<circle cx="80"  cy="256" r="50" fill="#D69E2E" stroke="#FFFFFF" stroke-width="4" />
+	<circle cx="256" cy="256" r="50" fill="#805AD5" stroke="#FFFFFF" stroke-width="4" />
+	<circle cx="432" cy="256" r="50" fill="#0BC5EA" stroke="#FFFFFF" stroke-width="4" />
 	<!-- Row 3 -->
-	<circle cx="109.3333" cy="402.6667" r="50" fill="#F97316" stroke="#FFFFFF" stroke-width="4" />
-	<circle cx="256"      cy="402.6667" r="50" fill="#EC4899" stroke="#FFFFFF" stroke-width="4" />
-	<circle cx="402.6667" cy="402.6667" r="50" fill="#84CC16" stroke="#FFFFFF" stroke-width="4" />
+	<circle cx="80"  cy="432" r="50" fill="#F97316" stroke="#FFFFFF" stroke-width="4" />
+	<circle cx="256" cy="432" r="50" fill="#EC4899" stroke="#FFFFFF" stroke-width="4" />
+	<circle cx="432" cy="432" r="50" fill="#84CC16" stroke="#FFFFFF" stroke-width="4" />
   </g>
 </svg>
