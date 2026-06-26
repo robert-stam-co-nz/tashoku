@@ -570,7 +570,7 @@ h1 {
 
         <!-- Device-dependent features: results sharing + install prompt -->
         <div class="actions" id="deviceActions" style="display:none;">
-            <button class="btn btn-primary" id="shareBtn" style="display:none;">Share Results<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+            <button class="btn btn-primary" id="shareBtn" disabled>Share Results<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
             <button class="btn btn-ghost" id="installBtn" style="display:none;">Install app</button>
         </div>
         <p class="status-text" id="shareToast" style="display:none;">Copied to clipboard!</p>
@@ -589,6 +589,31 @@ function darkText(k) { return k === 3 || k === 5 || k === 6 || k === 8; }
 
 function makeConfig(N) {
   return { N:9, boxRows:3, boxCols:3 };
+}
+
+// Lazy DOM cache — call cacheDOM() after the document is parsed
+const DOM = {};
+function cacheDOM() {
+  DOM.grid = document.getElementById('grid');
+  DOM.boxSvg = document.getElementById('boxSvg');
+  DOM.palette = document.getElementById('palette');
+  DOM.badge = document.getElementById('badge');
+  DOM.statusText = document.getElementById('statusText');
+  DOM.mistakesText = document.getElementById('mistakesText');
+  DOM.hintBtn = document.getElementById('hintBtn');
+  DOM.pencilToggle = document.getElementById('pencilToggle');
+  DOM.pencilLabel = document.getElementById('pencilLabel');
+  DOM.autoToggle = document.getElementById('autoToggle');
+  DOM.autoLabel = document.getElementById('autoLabel');
+  DOM.pencilCard = document.getElementById('pencilCard');
+  DOM.subtitleRule = document.getElementById('subtitleRule');
+  DOM.shareBtn = document.getElementById('shareBtn');
+  DOM.installBtn = document.getElementById('installBtn');
+  DOM.deviceActions = document.getElementById('deviceActions');
+  DOM.btnHard = document.getElementById('btnHard');
+  DOM.btnMedium = document.getElementById('btnMedium');
+  DOM.btnEasy = document.getElementById('btnEasy');
+  DOM.newBtn = document.getElementById('newBtn');
 }
 
 /* ── Solver ──────────────────────────────────────────────── */
@@ -1459,9 +1484,10 @@ function onPuzzleStateChange(solved, conflictCount, failed) {
     }
   }
 
-  if (shareBtn) {
+    if (shareBtn) {
     const wasEnded = _wasSolved || _wasFailed;
-      shareBtn.style.display = gameEnded ? 'inline-flex' : 'none';
+    // Keep the button visible; enable/disable it based on game end
+    shareBtn.disabled = !gameEnded;
     // Pre-generate image and focus button the first time the game ends
     if (gameEnded && !wasEnded) {
       if (!app.shareBlob) buildShareImage().then(b => { app.shareBlob = b; });
@@ -1498,11 +1524,11 @@ window.addEventListener('appinstalled', () => {
 });
 
 function updateDeviceActionsVisibility() {
-  const wrap = document.getElementById('deviceActions');
+  const wrap = DOM.deviceActions || document.getElementById('deviceActions');
   if (!wrap) return;
-  const shareVisible = document.getElementById('shareBtn').style.display !== 'none';
-  const installVisible = document.getElementById('installBtn').style.display !== 'none';
-  wrap.style.display = (shareVisible || installVisible) ? 'flex' : 'none';
+  const sharePresent = !!(DOM.shareBtn || document.getElementById('shareBtn'));
+  const installVisible = DOM.installBtn ? DOM.installBtn.style.display !== 'none' : (document.getElementById('installBtn') && document.getElementById('installBtn').style.display !== 'none');
+  wrap.style.display = (sharePresent || installVisible) ? 'flex' : 'none';
 }
 
 // Service worker registration. Requires HTTPS or localhost — silently
@@ -1517,20 +1543,22 @@ if ('serviceWorker' in navigator) {
 }
 
 /* ── Wire controls ────────────────────────────────────────── */
-document.getElementById('pencilToggle').addEventListener('click', () => setPencilMode(!app.pencilMode));
-document.getElementById('autoToggle').addEventListener('click', () => setAutoCandidates(!app.autoCandidates));
-document.getElementById('btnHard').addEventListener('click',   () => setDiff('hard'));
-document.getElementById('btnMedium').addEventListener('click', () => setDiff('medium'));
-document.getElementById('btnEasy').addEventListener('click',   () => setDiff('easy'));
-document.getElementById('newBtn').addEventListener('click',    newPuzzle);
-document.getElementById('hintBtn').addEventListener('click',   giveHint);
-document.getElementById('shareBtn').addEventListener('click',  shareResult);
-document.getElementById('installBtn').addEventListener('click', async () => {
+// Cache DOM now the document is parsed
+cacheDOM();
+if (DOM.pencilToggle) DOM.pencilToggle.addEventListener('click', () => setPencilMode(!app.pencilMode));
+if (DOM.autoToggle) DOM.autoToggle.addEventListener('click', () => setAutoCandidates(!app.autoCandidates));
+if (DOM.btnHard) DOM.btnHard.addEventListener('click', () => setDiff('hard'));
+if (DOM.btnMedium) DOM.btnMedium.addEventListener('click', () => setDiff('medium'));
+if (DOM.btnEasy) DOM.btnEasy.addEventListener('click', () => setDiff('easy'));
+if (DOM.newBtn) DOM.newBtn.addEventListener('click', newPuzzle);
+if (DOM.hintBtn) DOM.hintBtn.addEventListener('click', giveHint);
+if (DOM.shareBtn) DOM.shareBtn.addEventListener('click', shareResult);
+if (DOM.installBtn) DOM.installBtn.addEventListener('click', async () => {
   if (!deferredInstallPrompt) return;
   deferredInstallPrompt.prompt();
   await deferredInstallPrompt.userChoice;
   deferredInstallPrompt = null;
-  document.getElementById('installBtn').style.display = 'none';
+  if (DOM.installBtn) DOM.installBtn.style.display = 'none';
   updateDeviceActionsVisibility();
 });
 
