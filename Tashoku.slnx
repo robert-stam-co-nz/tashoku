@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="Tashoku.csproj" />
-  <Project Path="Tashoku.UnitTests/Tashoku.UnitTests.csproj" />
-</Solution>

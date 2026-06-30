@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TashokuApp.Tests/TashokuApp.Tests.csproj" />
+  <Project Path="TashokuApp.Web/TashokuApp.Web.csproj" />
+</Solution>
