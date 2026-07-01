@@ -1294,17 +1294,17 @@ function setPencilModeForced(on) {
 
 function buildShareText() {
   const diffLabel = app.diff[0].toUpperCase() + app.diff.slice(1);
-
+    // Define the invisible Left-to-Right Mark
+    const LRM = '\u200E'; 
   function gauge(used, max, filledEmoji) {
     return '⬜️'.repeat(max - used) + filledEmoji.repeat(used);
   }
 
   const lines = [
-      'Tashoku – ' + diffLabel,
+      LRM + 'Tashoku – ' + diffLabel,
     '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
-      '❌ ' + gauge(app.errorCount, app.maxErrors, '🟥'),
-      '\n',
-      location.href
+      '❌ ' + gauge(app.errorCount, app.maxErrors, '🟥') + LRM,
+      LRM +  location.href
      
   ];
 
