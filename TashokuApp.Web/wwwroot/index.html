@@ -1303,7 +1303,7 @@ function buildShareText() {
       '❌ ' + 'Tashoku – ' + diffLabel,
     '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
       '❌ ' + gauge(app.errorCount, app.maxErrors, '🟥'),
-      '❌ ' + location.href
+      '❌ ' + location.href.trim()
   ];
 
   return lines.join('\n');
