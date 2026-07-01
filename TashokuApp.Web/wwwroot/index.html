@@ -1371,7 +1371,7 @@
                 'Hints:   ' + '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
                 'Mistake: ' + statusIcon + ' ' + gauge(app.errorCount, app.maxErrors, filledSquare),
                 '', // Vertical space block
-                'Link: ' + location.href // Forces the text link into the message body
+                'Link: '// + location.href  Forces the text link into the message body
             ];
 
             return lines.join('\n');
