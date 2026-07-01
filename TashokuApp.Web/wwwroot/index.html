@@ -1382,23 +1382,22 @@
             const diffLabel = app.diff.charAt(0).toUpperCase() + app.diff.slice(1).toLowerCase();
 
             function gauge(used, max, filledEmoji) {
-                // Pure emoji grids are completely safe here
                 return '⬜️'.repeat(max - used) + filledEmoji.repeat(used);
             }
 
             const statusIcon = app.errorCount < 3 ? '✅' : '❌';
             const filledSquare = app.errorCount < 3 ? '🟩' : '🟥';
 
-            // Waffle's Clean Layout: 
-            // Anchor the top with text, isolate the pure grids, and print a clean link text string
-            const cleanLink = 'robert-stam-co-nz.github.io/Tashoku';
+            // \u200B is a zero-width space. It forces alphanumeric prioritization
+            // on every line, stopping Messenger from forcing a Right-to-Left (RTL) wrap.
+            const ZWS = '\u200B';
 
             const lines = [
-                `#Tashoku – ${diffLabel}`,
-                `💡 ${gauge(app.hintsUsed, app.maxHints, '🟨')}`,
-                `${statusIcon} ${gauge(app.errorCount, app.maxErrors, filledSquare)}`,
-                '', // Waffle-style structural space
-                cleanLink
+                ZWS + 'Tashoku – ' + diffLabel,
+                ZWS + '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
+                ZWS + statusIcon + ' ' + gauge(app.errorCount, app.maxErrors, filledSquare),
+                '', // Vertical space block
+                ZWS + location.href // Forces the text link into the message body
             ];
 
             return lines.join('\n');
@@ -1409,7 +1408,8 @@
 
             if (navigator.share) {
                 try {
-                    // Pass text only to let Messenger auto-wrap the clean link text string
+                    // Pass text ONLY. This guarantees the link is sent (inside the text)
+                    // while the ZWS tokens keep your layout cleanly aligned to the left margin.
                     await navigator.share({ text: text });
                     return;
                 } catch (err) {
@@ -1417,9 +1417,9 @@
                 }
             }
 
-            // Dynamic absolute link used exclusively for clipboard utility safety
-            fallbackShare(text + '\n\n' + location.href);
+            fallbackShare(text);
         }
+
 
         function fallbackShare(text) {
             const toast = document.getElementById('shareToast');
