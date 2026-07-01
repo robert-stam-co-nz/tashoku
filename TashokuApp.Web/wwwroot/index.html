@@ -1350,16 +1350,33 @@
                 return '⬜️'.repeat(max - used) + filledEmoji.repeat(used);
             }
 
-            // Keep this entirely focused on text and your gauges. 
-            // No URL strings are allowed here.
+            // Choose the icon dynamically based on the error count
+            const statusIcon = app.errorCount < 3 ? '✅' : '❌';
+            const filledSquare = app.errorCount < 3 ? '🟩' : '🟥';
+
             const lines = [
                 'Tashoku – ' + diffLabel,
-                '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
-                '❌ ' + gauge(app.errorCount, app.maxErrors, '🟥') + '.' // The dot acts as a structural anchor
+                statusIcon + ' ' + gauge(app.errorCount, app.maxErrors, filledSquare)
             ];
 
             return lines.join('\n');
         }
+
+        async function shareResult() {
+            const text = buildShareText();
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({ text: text });
+                    return;
+                } catch (err) {
+                    if (err && err.name === 'AbortError') return;
+                }
+            }
+
+            fallbackShare(text + '\n\n' + location.href);
+        }
+
 
         async function shareResult() {
             const text = buildShareText();
