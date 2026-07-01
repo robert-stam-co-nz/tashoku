@@ -7,13 +7,15 @@
     <meta name="description" content="A colour-based 9×9 diagonal Sudoku puzzle. Fill the grid so every row, column, box and diagonal has all nine colours." />
     <meta property="og:title" content="Tashoku" />
     <meta property="og:description" content="A colour-based 9×9 diagonal Sudoku puzzle. Fill the grid so every row, column, box and diagonal has all nine colours." />
-    <meta property="og:image" content="https://robert-stam-co-nz.github.io/Tashoku/icons/icon-512.png" />
+    <meta property="og:image" content="https://robert-stam-co-nz.github.io/Tashoku/icons/og-banner.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:url" content="https://robert-stam-co-nz.github.io/Tashoku/" />
     <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Tashoku" />
     <meta name="twitter:description" content="A colour-based 9×9 diagonal Sudoku puzzle. Fill the grid so every row, column, box and diagonal has all nine colours." />
-    <meta name="twitter:image" content="https://robert-stam-co-nz.github.io/Tashoku/icons/icon-512.png" />
+    <meta name="twitter:image" content="https://robert-stam-co-nz.github.io/Tashoku/icons/og-banner.png" />
     <base href="/Tashoku/" />
     <!-- PWA -->
     <link rel="manifest" href="manifest.json" />
@@ -1362,16 +1364,12 @@
             const statusIcon = app.errorCount < 3 ? '✅' : '❌';
             const filledSquare = app.errorCount < 3 ? '🟩' : '🟥';
 
-            // \u200B is a zero-width space. It forces alphanumeric prioritization
-            // on every line, stopping Messenger from forcing a Right-to-Left (RTL) wrap.
-            const ZWS = '\u200B';
-
             const lines = [
                 'Tashoku – ' + diffLabel,
                 '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
                 statusIcon + ' ' + gauge(app.errorCount, app.maxErrors, filledSquare),
-                ' 8.45'
-               ];
+                'v8.46'
+            ];
 
             return lines.join('\n');
         }
@@ -1383,7 +1381,7 @@
                 try {
                     // Pass text ONLY. This guarantees the link is sent (inside the text)
                     // while the ZWS tokens keep your layout cleanly aligned to the left margin.
-                    await navigator.share({ text: text);
+                    await navigator.share({ text: text });
                     return;
                 } catch (err) {
                     if (err && err.name === 'AbortError') return;
