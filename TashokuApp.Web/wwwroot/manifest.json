@@ -7,7 +7,7 @@
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F3F4F6",
-  "theme_color": "#4F46E5",
+  "theme_color": "#F3F4F6",
   "icons": [
     {
       "src": "icons/tashoku-icon.svg",

@@ -19,7 +19,7 @@
     <base href="/Tashoku/" />
     <!-- PWA -->
     <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#4F46E5" />
+    <meta name="theme-color" content="#F3F4F6" />
     <link rel="icon" href="icons/tashoku-icon.svg" type="image/svg+xml" />
     <link rel="alternate icon" href="icons/icon-192.png" />
     <link rel="mask-icon" href="icons/tashoku-icon.svg" color="#4F46E5" />
@@ -29,7 +29,7 @@
     <meta name="apple-mobile-web-app-title" content="Tashoku" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="msapplication-TileImage" content="icons/icon-512.png" />
-    <meta name="msapplication-TileColor" content="#4F46E5" />
+    <meta name="msapplication-TileColor" content="#F3F4F6" />
     <style>
         :root {
             /* Page & surface */
@@ -1368,7 +1368,7 @@
                 'Tashoku – ' + diffLabel,
                 '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
                 statusIcon + ' ' + gauge(app.errorCount, app.maxErrors, filledSquare),
-                'v8.46'
+                'v8.47'
             ];
 
             return lines.join('\n');
@@ -1379,8 +1379,9 @@
 
             if (navigator.share) {
                 try {
-                    // Pass text ONLY. This guarantees the link is sent (inside the text)
-                    // while the ZWS tokens keep your layout cleanly aligned to the left margin.
+                    // Text only, no URL. Messenger (and others) unfurl any link-shaped
+                    // string inside `text` too, so leaving it out entirely is what
+                    // keeps the emoji/gauge formatting intact.
                     await navigator.share({ text: text });
                     return;
                 } catch (err) {
