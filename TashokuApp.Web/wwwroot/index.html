@@ -1370,7 +1370,7 @@
                 'Tashoku – ' + diffLabel,
                 '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
                 statusIcon + ' ' + gauge(app.errorCount, app.maxErrors, filledSquare),
-                ' 8.44'
+                ' 8.45'
                ];
 
             return lines.join('\n');
@@ -1383,7 +1383,7 @@
                 try {
                     // Pass text ONLY. This guarantees the link is sent (inside the text)
                     // while the ZWS tokens keep your layout cleanly aligned to the left margin.
-                    await navigator.share({ text: text, url: '' });
+                    await navigator.share({ text: text);
                     return;
                 } catch (err) {
                     if (err && err.name === 'AbortError') return;
