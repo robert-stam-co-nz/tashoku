@@ -1342,32 +1342,26 @@
         /* ════════════════════════════════════════════════════════════
            Share result
            ════════════════════════════════════════════════════════════ */
-
         function buildShareText() {
             const diffLabel = app.diff.charAt(0).toUpperCase() + app.diff.slice(1).toLowerCase();
 
             function gauge(used, max, filledEmoji) {
-                const emptySymbol = '-';
-
-                // Create arrays of your elements
-                const empties = Array(max - used).fill(emptySymbol);
-                const filled = Array(used).fill(filledEmoji);
-
-                // Combine them and join with a text separator (·) to break up consecutive emojis
-                return [...empties, ...filled].join('·');
+                return '⬜️'.repeat(max - used) + filledEmoji.repeat(used);
             }
 
+            // Choose the icon and gauge colour dynamically based on the error count
             const statusIcon = app.errorCount < 3 ? '✅' : '❌';
             const filledSquare = app.errorCount < 3 ? '🟩' : '🟥';
 
+            // Original multi-line layout restored with your hints gauge
             const lines = [
                 'Tashoku – ' + diffLabel,
-                statusIcon //+ ' ' + gauge(app.errorCount, app.maxErrors, filledSquare)
+                '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
+                statusIcon + ' ' + gauge(app.errorCount, app.maxErrors, filledSquare)
             ];
 
             return lines.join('\n');
         }
-
 
         async function shareResult() {
             const text = buildShareText();
@@ -1381,29 +1375,7 @@
                 }
             }
 
-            fallbackShare(text + '\n\n' + location.href);
-        }
-
-
-        async function shareResult() {
-            const text = buildShareText();
-
-            if (navigator.share) {
-                try {
-                    // By separating the URL here and ensuring the text ends with a hard anchor (.),
-                    // Messenger will align your text left and generate its rich-link card perfectly.
-                    await navigator.share({
-                        text: text,
-                        url: location.href
-                    });
-                    return;
-                } catch (err) {
-                    if (err && err.name === 'AbortError') return;
-                }
-            }
-
-            // For the clipboard fallback, we append the URL manually so they can copy/paste it
-            fallbackShare(text + '\n\n' + location.href);
+            fallbackShare(text);
         }
 
 
