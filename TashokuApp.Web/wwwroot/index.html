@@ -1342,22 +1342,63 @@
         /* ════════════════════════════════════════════════════════════
            Share result
            ════════════════════════════════════════════════════════════ */
+        // function buildShareText() {
+        //     const diffLabel = app.diff.charAt(0).toUpperCase() + app.diff.slice(1).toLowerCase();
+
+        //     function gauge(used, max, filledEmoji) {
+        //         return '⬜️'.repeat(max - used) + filledEmoji.repeat(used);
+        //     }
+
+        //     // Choose the icon and gauge colour dynamically based on the error count
+        //     const statusIcon = app.errorCount < 3 ? '✅' : '❌';
+        //     const filledSquare = app.errorCount < 3 ? '🟩' : '🟥';
+
+        //     // Original multi-line layout restored with your hints gauge
+        //     const lines = [
+        //         'Tashoku – ' + diffLabel,
+        //         '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
+        //         statusIcon + ' ' + gauge(app.errorCount, app.maxErrors, filledSquare)
+        //     ];
+
+        //     return lines.join('\n');
+        // }
+
+        // async function shareResult() {
+        //     const text = buildShareText();
+
+        //     if (navigator.share) {
+        //         try {
+        //             await navigator.share({ text: text });
+        //             return;
+        //         } catch (err) {
+        //             if (err && err.name === 'AbortError') return;
+        //         }
+        //     }
+
+        //     fallbackShare(text);
+        // }
+
         function buildShareText() {
             const diffLabel = app.diff.charAt(0).toUpperCase() + app.diff.slice(1).toLowerCase();
 
             function gauge(used, max, filledEmoji) {
+                // Pure emoji grids are completely safe here
                 return '⬜️'.repeat(max - used) + filledEmoji.repeat(used);
             }
 
-            // Choose the icon and gauge colour dynamically based on the error count
             const statusIcon = app.errorCount < 3 ? '✅' : '❌';
             const filledSquare = app.errorCount < 3 ? '🟩' : '🟥';
 
-            // Original multi-line layout restored with your hints gauge
+            // Waffle's Clean Layout: 
+            // Anchor the top with text, isolate the pure grids, and print a clean link text string
+            const cleanLink = 'robert-stam-co-nz.github.io/Tashoku';
+
             const lines = [
-                'Tashoku – ' + diffLabel,
-                '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
-                statusIcon + ' ' + gauge(app.errorCount, app.maxErrors, filledSquare)
+                `#Tashoku – ${diffLabel}`,
+                `💡 ${gauge(app.hintsUsed, app.maxHints, '🟨')}`,
+                `${statusIcon} ${gauge(app.errorCount, app.maxErrors, filledSquare)}`,
+                '', // Waffle-style structural space
+                cleanLink
             ];
 
             return lines.join('\n');
@@ -1368,6 +1409,7 @@
 
             if (navigator.share) {
                 try {
+                    // Pass text only to let Messenger auto-wrap the clean link text string
                     await navigator.share({ text: text });
                     return;
                 } catch (err) {
@@ -1375,9 +1417,9 @@
                 }
             }
 
-            fallbackShare(text);
+            // Dynamic absolute link used exclusively for clipboard utility safety
+            fallbackShare(text + '\n\n' + location.href);
         }
-
 
         function fallbackShare(text) {
             const toast = document.getElementById('shareToast');
