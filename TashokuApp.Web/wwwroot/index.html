@@ -1302,7 +1302,9 @@ function buildShareText() {
   const lines = [
       'Tashoku – ' + diffLabel,
     '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
-      '❌ ' + gauge(app.errorCount, app.maxErrors, '🟥')
+      '❌ ' + gauge(app.errorCount, app.maxErrors, '🟥'),
+      '\n',
+      location.href
      
   ];
 
