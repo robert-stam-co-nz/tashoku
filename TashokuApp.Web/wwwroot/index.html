@@ -1346,23 +1346,27 @@
         function buildShareText() {
             const diffLabel = app.diff[0].toUpperCase() + app.diff.slice(1);
 
-            // Define the invisible Left-to-Right Mark
-            const LRM = '\u200E';
+            // Strict Left-to-Right Override tokens
+            const LRO = '\u202D'; // FORCES everything following to be Left-to-Right
+            const PDF = '\u202C'; // Closes the override block
 
             function gauge(used, max, filledEmoji) {
-                // Return the string wrapped in LRM tokens to isolate the squares
-                return LRM + '⬜️'.repeat(max - used) + filledEmoji.repeat(used) + LRM;
+                return '⬜️'.repeat(max - used) + filledEmoji.repeat(used);
             }
 
+            // Build the lines completely naked (no line-by-line LRM needed)
             const lines = [
-                LRM + 'Tashoku – ' + diffLabel,
-                LRM + '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
-                LRM + '❌ ' + gauge(app.errorCount, app.maxErrors, '🟥'),
-                LRM + location.href
+                'Tashoku – ' + diffLabel,
+                '💡 ' + gauge(app.hintsUsed, app.maxHints, '🟨'),
+                '❌ ' + gauge(app.errorCount, app.maxErrors, '🟥'),
+                location.href
             ];
 
-            return lines.join('\n');
+            // Join the lines, then wrap the ENTIRE block inside the LRO/PDF sandwich
+            return LRO + lines.join('\n') + PDF;
         }
+
+       
 
         async function shareResult() {
             const text = buildShareText();
