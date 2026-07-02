@@ -568,7 +568,7 @@
         }
 
         .mistakes-text {
-            font-size: 12px;
+            font-size: 24px;
             color: var(--text-muted);
             text-align: center;
             line-height: 1.6;
@@ -578,6 +578,49 @@
                 color: var(--danger);
                 font-weight: 600;
             }
+
+        .completion-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--panel);
+            color: var(--text);
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            animation: fadeInOut 3s ease-in-out forwards;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .completion-toast .badge {
+            display: block;
+            margin: 0 auto 16px;
+        }
+
+        .completion-toast p {
+            margin: 8px 0;
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
     </style>
 </head>
 
@@ -651,6 +694,11 @@
             <button class="btn btn-ghost" id="installBtn" style="display:none;">Install app</button>
         </div>
         <p class="status-text" id="shareToast" style="display:none;">Copied to clipboard!</p>
+        <div id="completionToast" class="completion-toast" style="display:none;">
+            <span class="badge" id="completionBadge"></span>
+            <p id="completionToastLine1"></p>
+            <p id="completionToastLine2"></p>
+        </div>
 
     </div>
     <!-- Google tag (gtag.js) -->
@@ -845,6 +893,51 @@
            - Because this function can be the hot path when invoked repeatedly, prefer
              to keep its use minimal (only for zero-mask recovery).
         */
+
+        function pop(x) { let n = 0; while (x) { n += x & 1; x >>>= 1; } return n; }
+
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function doPlace(cfg, st, r, c, v, diag) {
+            const bit = 1 << v;
+            st.rowU[r] |= bit;
+            st.colU[c] |= bit;
+            st.boxU[boxId(cfg, r, c)] |= bit;
+            if (diag) {
+                if (r === c) st.diagU[0] |= bit;
+                if (r + c === cfg.N - 1) st.diagU[1] |= bit;
+            }
+            st.grid[r * cfg.N + c] = v;
+        }
+
+        function doRemove(cfg, st, r, c, v, diag) {
+            const bit = 1 << v;
+            st.rowU[r] &= ~bit;
+            st.colU[c] &= ~bit;
+            st.boxU[boxId(cfg, r, c)] &= ~bit;
+            if (diag) {
+                if (r === c) st.diagU[0] &= ~bit;
+                if (r + c === cfg.N - 1) st.diagU[1] &= ~bit;
+            }
+            st.grid[r * cfg.N + c] = -1;
+        }
+
+        function mrv(cfg, st, emp, diag) {
+            let bi = -1, bc = 0, bn = 99;
+            for (const idx of emp) {
+                const r = 0 | (idx / cfg.N), c = idx % cfg.N;
+                const cm = candMask(cfg, st, r, c, diag);
+                const cn = pop(cm);
+                if (cn < bn) { bn = cn; bi = idx; bc = cm; if (cn <= 1) break; }
+            }
+            return { idx: bi, cands: bc, cnt: bn };
+        }
 
         function generateSolution(cfg, diag) {
             const st = makeState(cfg);
@@ -1183,6 +1276,7 @@
 
             updateStatus(g, conflicts);
             updatePaletteSelection(g);
+            saveGameState();
         }
 
         function bitmaskToList(mask, numColors) {
@@ -1226,24 +1320,21 @@
             hintBtn.textContent = hintsLeft <= 0 ? 'No hints left' : `Hint (${hintsLeft} left)`;
 
             if (app.failed) {
-                badgeEl.className = 'badge failed-badge';
-                badgeEl.textContent = '✗ Failed';
-                statusEl.className = 'status-text';
-                statusEl.textContent = 'Solution revealed';
+                badgeEl.style.display = 'none';
+                statusEl.style.display = 'none';
                 mistakesEl.className = 'mistakes-text danger';
-                mistakesEl.textContent = `${app.errorCount}/${app.maxErrors} mistakes · Tap New puzzle to try again`;
+                mistakesEl.textContent = `${app.errorCount}/${app.maxErrors} mistakes`;
+                showCompletionToast(false);
                 onPuzzleStateChange(false, conflicts.size, true);
                 return;
             }
 
             if (solved) {
-                badgeEl.className = 'badge solved-badge';
-                badgeEl.textContent = '✓ Solved!';
-                statusEl.className = 'status-text';
-                statusEl.textContent =
-                    `${app.cfg.N}×${app.cfg.N} · ${app.givenSet.size} clues`;
+                badgeEl.style.display = 'none';
+                statusEl.style.display = 'none';
                 mistakesEl.className = 'mistakes-text';
                 mistakesEl.textContent = app.errorCount > 0 ? `${app.errorCount}/${app.maxErrors} mistakes` : '';
+                showCompletionToast(true);
                 onPuzzleStateChange(true, conflicts.size, false);
                 return;
             }
@@ -1251,22 +1342,35 @@
             badgeEl.className = '';
             badgeEl.textContent = '';
 
-            const parts = [
-                `${app.cfg.N}×${app.cfg.N}`,
-                `${app.givenSet.size} clues`,
-                app.diff,
-            ];
-            if (conflicts.size > 0) {
-                statusEl.className = 'status-text conflict-text';
-                parts.push(`${conflicts.size} conflict${conflicts.size > 1 ? 's' : ''}`);
-            } else {
-                statusEl.className = 'status-text';
-            }
-            statusEl.textContent = parts.join(' · ');
+            statusEl.className = '';
+            statusEl.textContent = '';
 
             mistakesEl.className = app.errorCount > 0 ? 'mistakes-text danger' : 'mistakes-text';
             mistakesEl.textContent = `${app.errorCount}/${app.maxErrors} mistakes`;
             onPuzzleStateChange(false, conflicts.size, false);
+        }
+
+        /* ── Completion Toast ────────────────────────────────────── */
+        function showCompletionToast(isSuccess) {
+            const toast = document.getElementById('completionToast');
+            const badge = document.getElementById('completionBadge');
+            const line1 = document.getElementById('completionToastLine1');
+            const line2 = document.getElementById('completionToastLine2');
+
+            if (isSuccess) {
+                badge.className = 'badge solved-badge';
+                badge.textContent = '✓ Solved!';
+                line1.textContent = 'Success!';
+                line2.textContent = 'Let your friends know.';
+            } else {
+                badge.className = 'badge failed-badge';
+                badge.textContent = '✗ Failed';
+                line1.textContent = 'Next time.';
+                line2.textContent = 'Have another go.';
+            }
+
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
         }
 
         /* ── Subtitle ─────────────────────────────────────────────── */
@@ -1347,12 +1451,9 @@
             render();
         }
 
-        /* ── Fail: lock the board and reveal the solution, Wordle-style ──── */
+        /* ── Fail: lock the board without revealing the solution ──── */
         function triggerFail() {
             app.failed = true;
-            for (let i = 0; i < app.cfg.N * app.cfg.N; i++) {
-                if (!app.givenSet.has(i)) app.playerGrid[i] = app.solution[i];
-            }
         }
 
         /* ── Hint: reveal one correct cell rather than the whole board ──
@@ -1378,6 +1479,68 @@
             render();
         }
 
+        // Restore missing function that returns clue counts for 9×9 with diagonal constraint
+        function clueCount(cfg, diag, diff) {
+            return { hard: 22, medium: 30, easy: 40 }[diff];
+        }
+
+        /* ── Game State Persistence ──────────────────────────────────── */
+        function saveGameState() {
+            try {
+                const state = {
+                    solution: app.solution,
+                    givenSet: Array.from(app.givenSet),
+                    hintSet: Array.from(app.hintSet),
+                    playerGrid: app.playerGrid,
+                    candidates: app.candidates.map(c => c ? Array.from(c) : null),
+                    hintsUsed: app.hintsUsed,
+                    errorCount: app.errorCount,
+                    failed: app.failed,
+                    diff: app.diff,
+                    diag: app.diag,
+                };
+                localStorage.setItem('tashokuGameState', JSON.stringify(state));
+            } catch (e) {
+                console.warn('Failed to save game state:', e);
+            }
+        }
+
+        function loadGameState() {
+            try {
+                const saved = localStorage.getItem('tashokuGameState');
+                if (!saved) return false;
+
+                const state = JSON.parse(saved);
+                app.solution = state.solution;
+                app.givenSet = new Set(state.givenSet);
+                app.hintSet = new Set(state.hintSet);
+                app.playerGrid = state.playerGrid;
+                app.candidates = state.candidates.map(c => c ? new Set(c) : null);
+                app.hintsUsed = state.hintsUsed;
+                app.errorCount = state.errorCount;
+                app.failed = state.failed;
+                app.diff = state.diff;
+                app.diag = state.diag;
+                return true;
+            } catch (e) {
+                console.warn('Failed to load game state:', e);
+                return false;
+            }
+        }
+
+        function hasActiveGame() {
+            try {
+                const saved = localStorage.getItem('tashokuGameState');
+                if (!saved) return false;
+                const state = JSON.parse(saved);
+                // Only restore if game has a solution and is not completed
+                return state.solution && !state.failed && 
+                       !(state.playerGrid.filter(v => v !== -1).length === 81 && state.playerGrid.every((v, i) => v === state.solution[i]));
+            } catch (e) {
+                return false;
+            }
+        }
+
         function newPuzzle() {
             const count = clueCount(app.cfg, app.diag, app.diff);
             const { solution, given } = generatePuzzle(app.cfg, count, app.diag);
@@ -1390,6 +1553,7 @@
             app.errorCount = 0;
             app.failed = false;
             app.shareBlob = null;
+            saveGameState();
             render();
         }
 
@@ -1662,7 +1826,14 @@
         buildGrid();
         buildPalette();
         updateSubtitle();
-        newPuzzle();
+
+        // Check if there's an active game to restore
+        if (hasActiveGame()) {
+            loadGameState();
+            render();
+        } else {
+            newPuzzle();
+        }
     </script>
 </body>
 </html>
